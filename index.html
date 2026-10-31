@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1984 Style Guide</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="menubar.js" defer></script>
+  <style>
+    /* Style-guide-only layout. */
+    .sg-column { display: grid; gap: 24px; max-width: 912px; margin: 0 auto; padding: 24px 16px 48px; container-type: inline-size; }
+    .sg-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+    .sg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 16px; }
+    .sg-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 24px; }
+    .sg-spec { display: grid; grid-template-columns: 136px 1fr; gap: 12px 16px; align-items: center; }
+    .sg-spec > dt { font: 16px/16px var(--font-system); }
+    .sg-spec > dd { margin: 0; }
+    .sg-swatch { margin: 0; }
+    .sg-swatch > div { height: 48px; border: 1px solid var(--ink); }
+    .sg-swatch figcaption, .sg-var { font: 11px/16px var(--font-mono); }
+    .sg-type > div { display: grid; grid-template-columns: 136px 1fr; gap: 16px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--ink); }
+    .sg-type > div:last-child { border-bottom: 0; }
+    .sg-rules { margin: 0; padding-left: 20px; line-height: 20px; }
+    .sg-canvas { flex: 1; min-width: 200px; height: 156px; border: 1px solid var(--ink); background: var(--paper) url("icons/computer.svg") 50% 50% / 64px no-repeat; }
+    .sg-footer { padding: 8px 16px 16px; text-align: center; }
+    .sg-footer span { padding: 0 4px; background: var(--paper); }
+    /* Container query, not @media: media queries ignore the root zoom, so they see screen px, not Mac pixels. */
+    @container (max-width: 700px) {
+      .sg-split, .sg-type > div, .sg-spec { grid-template-columns: minmax(0, 1fr); }
+      .sg-type > div, .sg-spec { gap: 4px; }
+      .alert { width: auto; }
+    }
+  </style>
+</head>
+<body class="desktop">
+  <nav class="menubar" aria-label="Guide menu">
+    <details class="menu">
+      <summary aria-label="About"><img src="icons/logo.svg" width="16" height="16" alt=""></summary>
+      <div class="menu-list">
+        <a href="#principles">About the 1984 Style…</a>
+        <hr>
+        <a href="GUIDE.md">Rules (GUIDE.md)</a>
+        <a href="pixels.txt">Bitmap source (pixels.txt)</a>
+      </div>
+    </details>
+    <details class="menu">
+      <summary>File</summary>
+      <div class="menu-list">
+        <button type="button">New Window <kbd>⌘N</kbd></button>
+        <button type="button">Open… <kbd>⌘O</kbd></button>
+        <span aria-disabled="true">Close <kbd>⌘W</kbd></span>
+        <hr>
+        <span aria-disabled="true">Print… <kbd>⌘P</kbd></span>
+        <button type="button">Quit <kbd>⌘Q</kbd></button>
+      </div>
+    </details>
+    <details class="menu">
+      <summary>Edit</summary>
+      <div class="menu-list">
+        <span aria-disabled="true">Undo <kbd>⌘Z</kbd></span>
+        <hr>
+        <button type="button">Cut <kbd>⌘X</kbd></button>
+        <button type="button">Copy <kbd>⌘C</kbd></button>
+        <button type="button">Paste <kbd>⌘V</kbd></button>
+        <button type="button">Clear</button>
+        <hr>
+        <button type="button">Select All <kbd>⌘A</kbd></button>
+      </div>
+    </details>
+    <details class="menu">
+      <summary>View</summary>
+      <div class="menu-list">
+        <button type="button">by Icon</button>
+        <button type="button" aria-checked="true" role="menuitemradio">by Name</button>
+        <button type="button">by Date</button>
+        <button type="button">by Size</button>
+      </div>
+    </details>
+    <details class="menu">
+      <summary>Guide</summary>
+      <div class="menu-list">
+        <a href="#principles">Principles</a>
+        <a href="#type">Type</a>
+        <a href="#patterns">Patterns</a>
+        <a href="#controls">Controls</a>
+        <a href="#windows">Windows and Dialogs</a>
+        <a href="#icons">Icons and Cursors</a>
+        <a href="#data">Lists and Data</a>
+        <a href="#paint">Paint Tools</a>
+        <a href="#games">Games</a>
+      </div>
+    </details>
+  </nav>
+
+  <main class="sg-column">
+    <section class="window" id="principles" aria-labelledby="t-principles">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h1 class="title" id="t-principles">1984 Style Guide</h1></div>
+      <div class="window-body sg-split">
+        <div>
+          <p>A one-bit interface style for Daniel Pradilla's apps, modelled on the 1984 Macintosh: the Finder desktop, MacPaint, the system alerts, and games such as Dark Castle and Battle Chess. Every pixel is black or white.</p>
+          <p>Link <code>styles.css</code>. It imports <code>pixels.css</code>, the patterns and control bitmaps generated from <code>pixels.txt</code> by <code>./build.py</code>. Add <code>menubar.js</code> when the app has pull-down menus.</p>
+        </div>
+        <ol class="sg-rules">
+          <li>Two values only: <code>--ink</code> and <code>--paper</code>. Grays are dither patterns.</li>
+          <li>Chicago for menus, titles, buttons and labels; Geneva for content; Monaco for code.</li>
+          <li>Chicago runs at 16px or 32px. Bitmaps scale by whole numbers only. On screens 1024px and wider, every pixel is drawn 2 CSS px wide.</li>
+          <li>Selection is inversion: selected items swap black and white.</li>
+          <li>1px rules. Windows and menus cast a hard 1px shadow. No blur, no gradients.</li>
+          <li>One default button per dialog, marked by the heavy ring.</li>
+          <li>Icons are drawn pixel by pixel in <code>pixels.txt</code>, never traced from photos or scaled down.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="window" id="type" aria-labelledby="t-type">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h2 class="title" id="t-type">Type</h2></div>
+      <div class="window-body sg-type">
+        <div><span class="sg-var">Chicago 32/32</span><span class="display" style="margin:0">Dark Castle</span></div>
+        <div><span class="sg-var">Chicago 16/16</span><span class="chicago">File Edit View Special · Cancel · OK · 0123456789</span></div>
+        <div><span class="sg-var">Geneva 13/20</span><p style="margin:0">Body copy and long content. The 1984 Macintosh used Chicago for the system and Geneva for documents and lists; this guide keeps that split.</p></div>
+        <div><span class="sg-var">Geneva 13/16</span><span>Dense rows, field values, table cells: 212K in disk, 188K available</span></div>
+        <div><span class="sg-var">Geneva 11/12</span><small>Desktop icon labels, captions, metadata. Updated 31 Oct 2026, 13:05.</small></div>
+        <div><span class="sg-var">Monaco 12/16</span><code>border-image: var(--px-button) 6 fill / 6px;</code></div>
+        <div><span class="sg-var">Dithered text</span><span class="chicago"><span class="dim">Disabled items and secondary labels use the 50% pattern.</span></span></div>
+      </div>
+    </section>
+
+    <section class="window" id="patterns" aria-labelledby="t-patterns">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h2 class="title" id="t-patterns">Patterns</h2></div>
+      <div class="window-body">
+        <p>There is no gray. Use a pattern for every intermediate tone: desktop, scroll tracks, disabled text, chart series, chess squares.</p>
+        <div class="sg-grid">
+          <figure class="sg-swatch"><div style="background:var(--ink)"></div><figcaption>--ink · black</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--paper)"></div><figcaption>--paper · white</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--pat-gray)"></div><figcaption>--pat-gray · 50%, desktop</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--pat-dark)"></div><figcaption>--pat-dark · 75%</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--pat-light)"></div><figcaption>--pat-light · 25%</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--pat-dots)"></div><figcaption>--pat-dots · 12.5%</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--pat-diag)"></div><figcaption>--pat-diag · busy, hatching</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--pat-lines)"></div><figcaption>--pat-lines · title bar</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--pat-bricks)"></div><figcaption>--pat-bricks · castle walls</figcaption></figure>
+          <figure class="sg-swatch"><div style="background:var(--pat-checker)"></div><figcaption>--pat-checker · boards</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="window" id="controls" aria-labelledby="t-controls">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h2 class="title" id="t-controls">Controls</h2></div>
+      <div class="window-body">
+        <dl class="sg-spec">
+          <dt>Buttons</dt>
+          <dd class="sg-row">
+            <button class="btn" type="button">Cancel</button>
+            <button class="btn btn-default" type="button">OK</button>
+            <button class="btn is-pressed" type="button">Pressed</button>
+            <button class="btn" type="button" disabled>Disabled</button>
+          </dd>
+          <dt><label for="f-name">Text field</label></dt>
+          <dd class="sg-row"><input class="field" id="f-name" value="Untitled Painting"><input class="field" placeholder="Search projects" aria-label="Search projects"></dd>
+          <dt><label for="f-sort">Popup</label></dt>
+          <dd><select class="field" id="f-sort"><option>by Name</option><option>by Date</option><option>by Size</option></select></dd>
+          <dt><label for="f-note">Text area</label></dt>
+          <dd><textarea class="field" id="f-note" style="width:100%">Notes are set in Geneva. Fields have a 1px rule; focus doubles it.</textarea></dd>
+          <dt>Check boxes</dt>
+          <dd class="sg-row">
+            <label class="choice"><input type="checkbox" checked> Show grid</label>
+            <label class="choice"><input type="checkbox"> Fat bits</label>
+            <label class="choice"><input type="checkbox" disabled> Print preview</label>
+          </dd>
+          <dt>Radio buttons</dt>
+          <dd class="sg-row" role="radiogroup" aria-label="Tall adjusted">
+            <label class="choice"><input type="radio" name="size" checked> Tall</label>
+            <label class="choice"><input type="radio" name="size"> Tall Adjusted</label>
+            <label class="choice"><input type="radio" name="size"> Wide</label>
+          </dd>
+          <dt><label for="f-speed">Slider</label></dt>
+          <dd><input type="range" id="f-speed" value="40" style="width:240px"></dd>
+          <dt>Progress</dt>
+          <dd class="sg-row">
+            <div class="progress" role="progressbar" aria-label="Copying" aria-valuenow="62" style="--value:62%;width:240px"><span></span></div>
+            <div class="progress busy" role="progressbar" aria-label="Working" style="width:240px"><span></span></div>
+          </dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="window" id="windows" aria-labelledby="t-windows">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h2 class="title" id="t-windows">Windows and Dialogs</h2></div>
+      <div class="window-body">
+        <p>Active windows have the striped title bar and close box. Inactive windows show a plain bar. Content that does not fit scrolls inside the window with the patterned scroll bars.</p>
+        <div class="sg-split" style="margin-bottom:24px">
+          <div class="window">
+            <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><span class="title">Active</span></div>
+            <div class="window-body" style="height:120px;overflow:scroll">
+              <pre style="border:0;padding:0;width:520px">10 PRINT "HELLO"
+20 GOTO 10
+Scroll bars: 16px, 50% track, hollow arrows,
+grow box in the corner where both bars meet.
+This line is long enough to need the horizontal bar as well.</pre>
+            </div>
+          </div>
+          <div class="window inactive">
+            <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><span class="title">Inactive</span></div>
+            <div class="window-body" style="height:120px"><p>Behind the front window. The title stays; the stripes go.</p></div>
+          </div>
+        </div>
+        <div class="sg-row" style="align-items:start">
+          <div class="dialog alert" role="alertdialog" aria-labelledby="a-save">
+            <img src="icons/caution.svg" alt="Caution">
+            <p id="a-save">Save changes to “Untitled Painting” before closing?</p>
+            <div class="alert-actions"><button class="btn" type="button">No</button><button class="btn" type="button">Cancel</button><button class="btn btn-default" type="button">Yes</button></div>
+          </div>
+          <div class="dialog alert" role="alertdialog" aria-labelledby="a-note">
+            <img src="icons/note.svg" alt="Note">
+            <p id="a-note">The export finished. 14 files were written to “Projects”.</p>
+            <div class="alert-actions"><button class="btn btn-default" type="button">OK</button></div>
+          </div>
+          <div class="dialog alert" role="alertdialog" aria-labelledby="a-stop">
+            <img src="icons/stop.svg" alt="Stop">
+            <p id="a-stop">The disk “Archive” is locked. Unlock it in the Finder, then try again.</p>
+            <div class="alert-actions"><button class="btn btn-default" type="button">OK</button></div>
+          </div>
+          <div class="dialog alert" role="alertdialog" aria-labelledby="a-bomb">
+            <img src="icons/bomb.svg" alt="System error">
+            <p id="a-bomb">Sorry, a system error occurred.<br><small>ID = 02 · fetch /api/listeners returned 500</small></p>
+            <div class="alert-actions"><button class="btn" type="button" disabled>Resume</button><button class="btn btn-default" type="button">Restart</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="window" id="icons" aria-labelledby="t-icons">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h2 class="title" id="t-icons">Icons and Cursors</h2></div>
+      <div class="window-info"><span>11 items</span><span>32 × 32 desktop icons · 16 × 16 tool icons</span></div>
+      <div class="window-body">
+        <div class="sg-row" style="gap:8px 0">
+          <a class="desk-icon" href="#icons"><img src="icons/disk.svg" alt=""><span>System Disk</span></a>
+          <a class="desk-icon" href="#icons" aria-selected="true"><img src="icons/folder.svg" alt=""><span>Projects</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/document.svg" alt=""><span>Read Me</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/app.svg" alt=""><span>Paint</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/computer.svg" alt=""><span>About</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/trash.svg" alt=""><span>Trash</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/trash-full.svg" alt=""><span>Trash (full)</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/note.svg" alt=""><span>note</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/caution.svg" alt=""><span>caution</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/stop.svg" alt=""><span>stop</span></a>
+          <a class="desk-icon" href="#icons"><img src="icons/bomb.svg" alt=""><span>bomb</span></a>
+        </div>
+        <h2>Selected state</h2>
+        <p>“Projects” is selected: the icon is inverted inside its mask and the label turns white on black. Draw interiors with white pixels (<code>o</code>) so inversion fills them; transparent pixels (<code>.</code>) stay transparent.</p>
+        <h2>Cursors</h2>
+        <div class="sg-row">
+          <span class="desk-icon"><span style="display:block;width:32px;height:32px;background:var(--cur-arrow) center no-repeat"></span><span>--cur-arrow</span></span>
+          <span class="desk-icon busy"><span style="display:block;width:32px;height:32px;background:var(--cur-watch) center no-repeat"></span><span>--cur-watch</span></span>
+          <p style="margin:0;flex:1;min-width:200px">The desktop uses the arrow everywhere, including links and buttons. Set <code>aria-busy="true"</code> on the desktop, or <code>.busy</code> on a region, to show the watch. Hover over the two samples to try them.</p>
+        </div>
+        <h2>Drawing new icons</h2>
+        <pre>icon trash
+......#oooooooooooooooooo#......
+......#ooo#ooo#oo#ooo#ooo#......   '#' black   'o' white   '.' transparent</pre>
+        <p style="margin-top:8px">Add a block to <code>pixels.txt</code> and run <code>./build.py</code>. <code>icon NAME</code> writes <code>icons/NAME.svg</code>; <code>css NAME</code> adds <code>--NAME</code> to <code>pixels.css</code>. The build rejects ragged rows.</p>
+      </div>
+    </section>
+
+    <section class="window" id="data" aria-labelledby="t-data">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h2 class="title" id="t-data">Lists and Data</h2></div>
+      <div class="window-info"><span>5 items</span><span>Snapshot 31 Oct 2026, 13:05</span></div>
+      <div class="window-body flush">
+        <table class="table">
+          <thead><tr><th>Name</th><th class="num">Size</th><th>Kind</th><th>Status</th><th>Last Modified</th></tr></thead>
+          <tbody>
+            <tr><td><img src="icons/folder.svg" alt="">uk-music-cities</td><td class="num">1,204K</td><td>folder</td><td><span class="tag" data-state="done">Deployed</span></td><td>Thu, Oct 29, 2026</td></tr>
+            <tr aria-selected="true"><td><img src="icons/folder.svg" alt="">european-monarchies-timeline</td><td class="num">846K</td><td>folder</td><td><span class="tag" data-state="running">Building</span></td><td>Sat, Oct 31, 2026</td></tr>
+            <tr><td><img src="icons/document.svg" alt="">swiss-commutes.csv</td><td class="num">212K</td><td>document</td><td><span class="tag" data-state="waiting">Queued</span></td><td>Mon, Oct 26, 2026</td></tr>
+            <tr><td><img src="icons/document.svg" alt="">stylometric-analysis</td><td class="num">98K</td><td>document</td><td><span class="tag" data-state="failed">Failed</span></td><td>Fri, Oct 23, 2026</td></tr>
+            <tr><td><img src="icons/app.svg" alt="">choplifter</td><td class="num">64K</td><td>application</td><td><span class="tag" data-state="done">Deployed</span></td><td>Tue, Oct 20, 2026</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="window-body" style="border-top:1px solid var(--ink)">
+        <h2 style="margin-top:0">Pages built per project, October 2026</h2>
+        <ul class="legend">
+          <li style="--fill:var(--ink)">HTML</li>
+          <li style="--fill:var(--pat-dark)">Images</li>
+          <li style="--fill:var(--pat-gray)">Data</li>
+        </ul>
+        <div class="bars">
+          <span>uk-music-cities</span><span class="bar-track"><span class="bar-fill" style="--value:92%"></span></span><span class="bar-value">46</span>
+          <span>european-monarchies</span><span class="bar-track"><span class="bar-fill" style="--value:64%;--fill:var(--pat-dark)"></span></span><span class="bar-value">32</span>
+          <span>swiss-commutes</span><span class="bar-track"><span class="bar-fill" style="--value:36%;--fill:var(--pat-gray)"></span></span><span class="bar-value">18</span>
+          <span>choplifter</span><span class="bar-track"><span class="bar-fill" style="--value:12%;--fill:var(--pat-diag)"></span></span><span class="bar-value">6</span>
+        </div>
+        <p style="margin:8px 0 0"><small>Values are printed beside each bar. Series differ by pattern, assigned in this order: ink, dark, gray, diag, light, dots.</small></p>
+      </div>
+    </section>
+
+    <section class="window" id="paint" aria-labelledby="t-paint">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h2 class="title" id="t-paint">Paint Tools</h2></div>
+      <div class="window-body">
+        <div class="sg-row" style="align-items:start">
+          <div class="palette" role="toolbar" aria-label="Tools">
+            <button type="button" aria-label="Selection"><img src="icons/tool-marquee.svg" alt=""></button>
+            <button type="button" aria-label="Text"><img src="icons/tool-text.svg" alt=""></button>
+            <button type="button" aria-label="Paint bucket"><img src="icons/tool-bucket.svg" alt=""></button>
+            <button type="button" aria-label="Pencil" aria-pressed="true"><img src="icons/tool-pencil.svg" alt=""></button>
+            <button type="button" aria-label="Eraser"><img src="icons/tool-eraser.svg" alt=""></button>
+            <button type="button" aria-label="Line"><img src="icons/tool-line.svg" alt=""></button>
+            <button type="button" aria-label="Rectangle"><img src="icons/tool-rect.svg" alt=""></button>
+            <button type="button" aria-label="Filled rectangle"><img src="icons/tool-rect-fill.svg" alt=""></button>
+            <button type="button" aria-label="Oval"><img src="icons/tool-oval.svg" alt=""></button>
+            <button type="button" aria-label="Filled oval"><img src="icons/tool-oval-fill.svg" alt=""></button>
+          </div>
+          <div class="sg-canvas" role="img" aria-label="Canvas with a computer icon at 2x"></div>
+        </div>
+        <div class="patterns" role="toolbar" aria-label="Patterns" style="margin-top:12px">
+          <button type="button" style="--fill:var(--ink)" aria-label="Black" aria-pressed="true"></button>
+          <button type="button" style="--fill:var(--pat-dark)" aria-label="75%"></button>
+          <button type="button" style="--fill:var(--pat-gray)" aria-label="50%"></button>
+          <button type="button" style="--fill:var(--pat-light)" aria-label="25%"></button>
+          <button type="button" style="--fill:var(--pat-dots)" aria-label="Dots"></button>
+          <button type="button" style="--fill:var(--pat-diag)" aria-label="Diagonal"></button>
+          <button type="button" style="--fill:var(--pat-bricks)" aria-label="Bricks"></button>
+          <button type="button" style="--fill:var(--pat-checker)" aria-label="Checker"></button>
+          <button type="button" style="--fill:var(--pat-lines)" aria-label="Lines"></button>
+          <button type="button" style="--fill:var(--paper)" aria-label="White"></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="window" id="games" aria-labelledby="t-games">
+      <div class="titlebar"><button class="close-box" type="button" aria-label="Close"></button><h2 class="title" id="t-games">Games</h2></div>
+      <div class="window-body sg-split" style="align-items:start">
+        <div>
+          <div class="board" role="group" aria-label="Chess position">
+            <span><img src="icons/chess-rook.svg" class="black" alt="Black rook"></span><span></span><span></span><span><img src="icons/chess-queen.svg" class="black" alt="Black queen"></span><span><img src="icons/chess-king.svg" class="black" alt="Black king"></span><span></span><span><img src="icons/chess-knight.svg" class="black" alt="Black knight"></span><span><img src="icons/chess-rook.svg" class="black" alt="Black rook"></span>
+            <span><img src="icons/chess-pawn.svg" class="black" alt="Black pawn"></span><span><img src="icons/chess-pawn.svg" class="black" alt="Black pawn"></span><span><img src="icons/chess-pawn.svg" class="black" alt="Black pawn"></span><span></span><span><img src="icons/chess-bishop.svg" class="black" alt="Black bishop"></span><span><img src="icons/chess-pawn.svg" class="black" alt="Black pawn"></span><span><img src="icons/chess-pawn.svg" class="black" alt="Black pawn"></span><span><img src="icons/chess-pawn.svg" class="black" alt="Black pawn"></span>
+            <span></span><span></span><span><img src="icons/chess-knight.svg" class="black" alt="Black knight"></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span><img src="icons/chess-pawn.svg" class="black" alt="Black pawn"></span><span><img src="icons/chess-pawn.svg" alt="White pawn"></span><span></span><span></span><span></span>
+            <span></span><span></span><span><img src="icons/chess-bishop.svg" alt="White bishop"></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span><img src="icons/chess-knight.svg" alt="White knight"></span><span></span><span></span>
+            <span><img src="icons/chess-pawn.svg" alt="White pawn"></span><span><img src="icons/chess-pawn.svg" alt="White pawn"></span><span><img src="icons/chess-pawn.svg" alt="White pawn"></span><span><img src="icons/chess-pawn.svg" alt="White pawn"></span><span></span><span><img src="icons/chess-pawn.svg" alt="White pawn"></span><span><img src="icons/chess-pawn.svg" alt="White pawn"></span><span><img src="icons/chess-pawn.svg" alt="White pawn"></span>
+            <span><img src="icons/chess-rook.svg" alt="White rook"></span><span></span><span></span><span><img src="icons/chess-queen.svg" alt="White queen"></span><span class="is-selected"><img src="icons/chess-king.svg" alt="White king, selected"></span><span></span><span></span><span><img src="icons/chess-rook.svg" alt="White rook"></span>
+          </div>
+          <p style="margin-top:8px"><small>16px pieces at <code>zoom: 2</code>. Black pieces are the same bitmap with <code>filter: invert(1)</code>; dark squares use <code>--pat-gray</code>.</small></p>
+        </div>
+        <div class="stage">
+          <div style="padding:24px 16px;text-align:center;background:var(--pat-bricks) 0 100% / auto 32px repeat-x var(--ink)">
+            <div class="display">THE KEEP</div>
+            <p class="chicago" style="margin:0 0 48px">Press any key to climb</p>
+          </div>
+          <div class="hud"><span>SCORE 004210</span><span>ROCKS 25</span><span aria-label="3 lives"><img src="icons/chess-pawn.svg" class="black" alt="" width="16" height="16"><img src="icons/chess-pawn.svg" class="black" alt="" width="16" height="16"><img src="icons/chess-pawn.svg" class="black" alt="" width="16" height="16"></span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="sg-footer"><small><span>Chicago face: ChiKareGo2 by Giles Booth, CC BY. Not affiliated with Apple. Icons drawn for this guide.</span></small></footer>
+</body>
+</html>

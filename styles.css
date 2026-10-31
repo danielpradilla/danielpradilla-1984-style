@@ -1,0 +1,392 @@
+/* 1984 style: one-bit UI in the manner of the original Macintosh desktop.
+   Bitmaps (patterns, control frames, cursors) live in pixels.css, generated from pixels.txt. */
+@import url("pixels.css");
+
+@font-face {
+  font-family: "Chicago";
+  src: url("fonts/ChiKareGo2.ttf") format("truetype"); /* ChiKareGo2 by Giles Booth, CC BY */
+  font-display: block;
+}
+
+:root {
+  color-scheme: light;
+  --ink: #000;
+  --paper: #fff;
+  --font-system: "Chicago", "Geneva", system-ui, sans-serif; /* menus, titles, buttons, labels: 16px or 32px only */
+  --font-app: "Geneva", "Verdana", "Helvetica Neue", Arial, sans-serif; /* content */
+  --font-mono: "Monaco", ui-monospace, "Menlo", monospace;
+  --shadow: 1px 1px 0 var(--ink); /* windows, menus and popups cast a hard 1px shadow */
+  --scale: 1; /* CSS px per Mac pixel. Write every length in Mac pixels. */
+  --cursor: var(--cur-arrow) 0 0, default;
+  --cursor-busy: var(--cur-watch) 7 8, wait;
+}
+
+/* The 1984 screen was 512 pixels wide at 72 dpi. Wherever 2x still leaves 512 pixels across,
+   draw each pixel as 2 CSS px: about 0.4 mm on a Retina laptop, close to the original 0.35 mm. */
+@media (min-width: 1024px) {
+  :root {
+    --scale: 2;
+    --cursor: var(--cur-arrow-2x) 0 0, default;
+    --cursor-busy: var(--cur-watch-2x) 14 16, wait;
+    zoom: var(--scale);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font: 13px/16px var(--font-app);
+}
+
+img, svg, canvas { image-rendering: pixelated; }
+::selection { background: var(--ink); color: var(--paper); }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+a { color: inherit; }
+
+/* ---------- Type ---------- */
+.display, h1 { font: 32px/32px var(--font-system); margin: 0 0 16px; font-weight: normal; font-synthesis: none; }
+h2, .label, .chicago { font: 16px/16px var(--font-system); font-weight: normal; font-synthesis: none; }
+h2 { margin: 16px 0 8px; }
+h3 { font: bold 13px/16px var(--font-app); margin: 16px 0 4px; }
+p { margin: 0 0 8px; line-height: 20px; }
+small, .meta { font-size: 11px; line-height: 12px; }
+code, kbd, pre, .mono { font-family: var(--font-mono); font-size: 12px; }
+pre { margin: 0; padding: 8px; border: 1px solid var(--ink); line-height: 16px; overflow: auto; }
+
+/* Gray text does not exist: disabled and secondary text is dithered with the 50% pattern. */
+.dim, [aria-disabled="true"], .btn:disabled, input.field:disabled, textarea.field:disabled {
+  color: transparent;
+  background-image: var(--pat-gray);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+::placeholder {
+  color: transparent;
+  background: var(--pat-gray);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ---------- Desktop and menu bar ---------- */
+.desktop {
+  min-height: calc(100vh / var(--scale)); /* root zoom also multiplies vw and vh */
+  background: var(--pat-gray);
+  cursor: var(--cursor);
+}
+.desktop a, .desktop button, .desktop summary, .desktop label { cursor: inherit; }
+.desktop[aria-busy="true"], .busy { cursor: var(--cursor-busy); }
+
+/* Rounded black screen corners under the menu bar. */
+.desktop::before, .desktop::after {
+  content: "";
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  background: var(--px-corner);
+  pointer-events: none;
+}
+.desktop::before { left: 0; }
+.desktop::after { right: 0; transform: scaleX(-1); }
+
+.menubar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  height: 20px;
+  padding: 0 8px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--ink);
+  font: 16px/19px var(--font-system);
+}
+.menu { position: relative; }
+.menu > summary {
+  display: flex;
+  align-items: center;
+  height: 19px;
+  padding: 0 8px;
+  list-style: none;
+}
+.menu > summary::-webkit-details-marker { display: none; }
+.menu[open] > summary { background: var(--ink); color: var(--paper); }
+.menu[open] > summary img { filter: invert(1); }
+.menu-list {
+  position: absolute;
+  top: 19px;
+  left: 0;
+  min-width: 176px;
+  max-width: calc(100vw / var(--scale) - 16px);
+  padding: 0;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: var(--shadow);
+}
+.menu:last-child .menu-list { left: auto; right: 0; }
+.menu-list > a, .menu-list > button, .menu-list > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 0 16px;
+  border: 0;
+  background: none;
+  font: inherit;
+  line-height: 16px;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.menu-list > a:hover, .menu-list > button:hover, .menu-list > a:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: 0;
+}
+.menu-list > [aria-checked="true"] { background: var(--px-check) 4px 4px no-repeat; }
+.menu-list > [aria-checked="true"]:hover { background: var(--ink); }
+.menu-list > [aria-disabled="true"] { background: var(--pat-gray); -webkit-background-clip: text; background-clip: text; }
+.menu-list kbd { font: inherit; }
+.menu-list hr { height: 1px; margin: 0; border: 0; background: var(--pat-gray); }
+
+/* ---------- Windows ---------- */
+.window {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* wide content scrolls inside .window-body instead of widening the window */
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: var(--shadow);
+}
+.titlebar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 20px;
+  padding: 3px 1px 4px;
+  border-bottom: 1px solid var(--ink);
+  background: var(--pat-lines) content-box;
+}
+.titlebar > .title {
+  margin: -3px 0 -4px;
+  padding: 0 8px;
+  background: var(--paper);
+  font: 16px/19px var(--font-system);
+  white-space: nowrap;
+}
+.close-box {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 0 0 0 1px var(--paper);
+}
+.close-box:active { background: var(--px-check-on) center / 9px 9px no-repeat var(--paper); }
+.window.inactive .titlebar { background: none; }
+.window.inactive .close-box { display: none; }
+.window-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 2px 8px 1px;
+  border-bottom: 3px double var(--ink);
+}
+.window-body { padding: 12px 16px; overflow: auto; }
+.window-body.flush { padding: 0; }
+
+/* Scroll bars: 50% track, white thumb, hollow arrows, grow box in the corner. */
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track { background: var(--pat-gray); }
+::-webkit-scrollbar-track:vertical { box-shadow: inset 1px 0 var(--ink); }
+::-webkit-scrollbar-track:horizontal { box-shadow: inset 0 1px var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--paper); box-shadow: inset 0 0 0 1px var(--ink); }
+::-webkit-scrollbar-button:single-button { display: block; width: 16px; height: 16px; background: var(--paper) center no-repeat; }
+::-webkit-scrollbar-button:single-button:vertical { box-shadow: inset 1px 0 var(--ink), inset 0 -1px var(--ink), inset 0 1px var(--ink); }
+::-webkit-scrollbar-button:single-button:horizontal { box-shadow: inset 0 1px var(--ink), inset -1px 0 var(--ink), inset 1px 0 var(--ink); }
+::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: var(--px-arrow-up); }
+::-webkit-scrollbar-button:single-button:vertical:increment { background-image: var(--px-arrow-down); }
+::-webkit-scrollbar-button:single-button:horizontal:decrement { background-image: var(--px-arrow-left); }
+::-webkit-scrollbar-button:single-button:horizontal:increment { background-image: var(--px-arrow-right); }
+::-webkit-scrollbar-corner { background: var(--paper) var(--px-grow) center no-repeat; box-shadow: inset 1px 1px var(--ink); }
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-color: var(--ink) var(--paper); }
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  height: 24px;
+  padding: 0 6px;
+  border: 6px solid transparent;
+  border-image: var(--px-button) 6 fill / 6px;
+  background: none;
+  color: var(--ink);
+  font: 16px/12px var(--font-system);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:active:not(:disabled), .btn.is-pressed { border-image-source: var(--px-button-down); color: var(--paper); }
+/* Default button: the action Return triggers. One per dialog. The ring sits outside the layout box. */
+.btn-default {
+  height: 32px;
+  margin: -4px;
+  padding: 0 2px;
+  border-width: 10px;
+  border-image: var(--px-default) 10 fill / 10px;
+}
+.btn-default:active:not(:disabled), .btn-default.is-pressed { border-image-source: var(--px-default-down); }
+/* border-image fill would cover the dithered text, so disabled buttons drop the fill (place them on white). */
+.btn:disabled { border-image-slice: 6; }
+.btn-default:disabled { border-image-slice: 10; }
+
+/* ---------- Fields ---------- */
+.field {
+  height: 24px;
+  padding: 3px 4px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 13px/16px var(--font-app);
+  caret-color: var(--ink);
+}
+.field:focus { outline: 0; box-shadow: inset 0 0 0 1px var(--ink); }
+textarea.field { height: auto; min-height: 72px; resize: vertical; }
+select.field {
+  appearance: none;
+  padding-right: 24px;
+  background: var(--paper) var(--px-popup) right 8px center no-repeat;
+  box-shadow: var(--shadow);
+  font: 16px/16px var(--font-system);
+}
+select.field:focus { box-shadow: var(--shadow), inset 0 0 0 1px var(--ink); }
+
+.choice { display: inline-flex; align-items: center; gap: 8px; font: 16px/16px var(--font-system); }
+input[type="checkbox"], input[type="radio"] {
+  appearance: none;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  background: var(--px-check-off) no-repeat;
+}
+input[type="checkbox"]:checked { background-image: var(--px-check-on); }
+input[type="radio"] { background-image: var(--px-radio-off); }
+input[type="radio"]:checked { background-image: var(--px-radio-on); }
+.choice:has(:disabled) { color: transparent; background: var(--pat-gray); -webkit-background-clip: text; background-clip: text; }
+
+input[type="range"] { appearance: none; height: 16px; margin: 0; background: none; }
+input[type="range"]::-webkit-slider-runnable-track { height: 16px; border: 1px solid var(--ink); background: var(--pat-gray); }
+input[type="range"]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; margin-top: -1px; border: 1px solid var(--ink); background: var(--paper); }
+input[type="range"]::-moz-range-track { height: 14px; border: 1px solid var(--ink); background: var(--pat-gray); }
+input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border: 1px solid var(--ink); border-radius: 0; background: var(--paper); }
+
+/* role="progressbar"; set --value. .busy gives the moving barber pole for unknown duration. */
+.progress { height: 12px; border: 1px solid var(--ink); background: var(--paper); }
+.progress > span { display: block; width: var(--value, 0%); height: 100%; background: var(--ink); }
+.progress.busy > span { width: 100%; background: var(--pat-diag); animation: barber 0.6s steps(4) infinite; }
+@keyframes barber { to { background-position: 4px 0; } }
+
+/* ---------- Dialogs and alerts ---------- */
+.dialog {
+  max-width: calc(100vw / var(--scale) - 16px);
+  margin: 3px;
+  padding: 16px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 1px var(--paper), 0 0 0 2px var(--ink);
+}
+dialog.dialog { margin: auto; }
+dialog.dialog::backdrop { background: none; }
+.alert { display: grid; grid-template-columns: 32px 1fr; gap: 8px 16px; width: 400px; }
+.alert > img { width: 32px; height: 32px; }
+.alert-actions { grid-column: 2; display: flex; justify-content: flex-end; gap: 16px; margin-top: 8px; }
+
+/* ---------- Icons ---------- */
+.icon { width: 32px; height: 32px; }
+.icon-sm { width: 16px; height: 16px; }
+.x2 { zoom: 2; }
+.desk-icon {
+  display: inline-grid;
+  justify-items: center;
+  gap: 2px;
+  width: 88px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 11px/12px var(--font-app);
+  text-align: center;
+  text-decoration: none;
+}
+.desk-icon img { width: 32px; height: 32px; }
+.desk-icon span { padding: 0 2px; background: var(--paper); }
+.desk-icon[aria-selected="true"] img { filter: invert(1); }
+.desk-icon[aria-selected="true"] span { background: var(--ink); color: var(--paper); }
+
+/* ---------- Lists and data ---------- */
+.table { width: 100%; border-collapse: collapse; }
+.table th { padding: 2px 8px; border-bottom: 1px solid var(--ink); font: 16px/16px var(--font-system); text-align: left; white-space: nowrap; }
+.table td { padding: 1px 8px; white-space: nowrap; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.table td img { width: 16px; height: 16px; vertical-align: -3px; margin-right: 6px; }
+.table tr[aria-selected="true"] td { background: var(--ink); color: var(--paper); }
+.table tr[aria-selected="true"] img { filter: invert(1); }
+
+/* Status reads from the fill pattern, never from color: done is solid, running is 50%, waiting is empty. */
+.tag { display: inline-flex; align-items: center; gap: 6px; font: 16px/16px var(--font-system); white-space: nowrap; }
+.tag::before { content: ""; flex: none; width: 12px; height: 12px; border: 1px solid var(--ink); background: var(--paper); }
+.tag[data-state="done"]::before { background: var(--ink); }
+.tag[data-state="running"]::before { background: var(--pat-gray); }
+.tag[data-state="failed"] { padding: 0 4px 0 0; background: var(--ink); color: var(--paper); }
+.tag[data-state="failed"]::before { background: var(--px-check-on); border: 0; }
+
+/* Bar chart: series are told apart by pattern, in this order: ink, dark, gray, diag, light, dots. */
+.bars { display: grid; grid-template-columns: max-content 1fr max-content; gap: 4px 8px; align-items: center; }
+.bar-track { height: 14px; }
+.bar-fill { display: block; width: var(--value); height: 100%; border: 1px solid var(--ink); background: var(--fill, var(--ink)); }
+.bar-value { font-variant-numeric: tabular-nums; text-align: right; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 8px; padding: 0; list-style: none; }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.legend li::before { content: ""; width: 16px; height: 12px; border: 1px solid var(--ink); background: var(--fill, var(--ink)); }
+
+/* ---------- Tool palettes ---------- */
+.palette { display: grid; grid-template-columns: repeat(2, 28px); gap: 1px; width: max-content; border: 1px solid var(--ink); background: var(--ink); }
+.palette button { display: grid; place-items: center; width: 28px; height: 22px; padding: 0; border: 0; background: var(--paper); }
+.palette button img { width: 16px; height: 16px; }
+.palette button[aria-pressed="true"] { background: var(--ink); }
+.palette button[aria-pressed="true"] img { filter: invert(1); }
+.patterns { display: flex; flex-wrap: wrap; gap: 1px; width: max-content; max-width: 100%; border: 1px solid var(--ink); background: var(--ink); }
+.patterns button { width: 28px; height: 18px; padding: 0; border: 0; background: var(--fill); }
+.patterns button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px var(--ink); }
+
+/* ---------- Games ---------- */
+.stage { color: var(--paper); background: var(--ink); }
+.stage .btn { color: var(--ink); }
+.hud { display: flex; justify-content: space-between; gap: 16px; padding: 4px 8px; border-top: 1px solid var(--paper); font: 16px/16px var(--font-system); }
+.board { display: grid; grid-template-columns: repeat(8, 32px); width: max-content; border: 1px solid var(--ink); background: var(--pat-gray); }
+.board > * { display: grid; place-items: center; width: 32px; height: 32px; }
+.board > :is(:nth-child(16n+1), :nth-child(16n+3), :nth-child(16n+5), :nth-child(16n+7),
+  :nth-child(16n+10), :nth-child(16n+12), :nth-child(16n+14), :nth-child(16n+16)) { background: var(--paper); }
+.board img { width: 16px; height: 16px; zoom: 2; }
+.board .black { filter: invert(1); }
+.board .is-selected { box-shadow: inset 0 0 0 2px var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .progress.busy > span { animation: none; }
+}

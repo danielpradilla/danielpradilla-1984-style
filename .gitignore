@@ -1,0 +1,2 @@
+# ~/.gitignore_global has "Icon?" (macOS Icon\r files); with case-insensitive paths it also matches icons/.
+!/icons/
